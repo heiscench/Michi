@@ -37,12 +37,12 @@
       position: relative;
     }
 
-    /* === Background animation - visible neon particles === */
-    .background-particles {
+    /* Background particles - very visible version */
+    #particles {
       position: fixed;
       inset: 0;
       pointer-events: none;
-      z-index: -1;
+      z-index: -2;
       overflow: hidden;
     }
 
@@ -50,32 +50,32 @@
       position: absolute;
       background: var(--neon);
       border-radius: 50%;
-      opacity: 0;
       box-shadow: 
-        0 0 12px var(--neon),
-        0 0 30px rgba(0, 255, 157, 0.4),
-        0 0 60px rgba(0, 255, 157, 0.15);
-      animation: float-particle linear infinite;
+        0 0 15px var(--neon),
+        0 0 40px rgba(0, 255, 157, 0.6),
+        0 0 80px rgba(0, 255, 157, 0.3);
+      opacity: 0;
+      animation: rise linear infinite;
+      will-change: transform, opacity;
     }
 
-    @keyframes float-particle {
+    @keyframes rise {
       0% {
-        transform: translateY(110vh) scale(0.3);
+        transform: translateY(120vh) scale(0.5);
         opacity: 0;
       }
-      10% {
-        opacity: 0.7;
+      8% {
+        opacity: 0.85;
       }
       60% {
-        opacity: 0.7;
+        opacity: 0.85;
       }
       100% {
-        transform: translateY(-20vh) scale(0.8);
+        transform: translateY(-40vh) scale(1.1);
         opacity: 0;
       }
     }
 
-    /* === Layout === */
     .layout {
       display: grid;
       grid-template-columns: 280px 1fr;
@@ -120,7 +120,7 @@
       50%      { transform: scale(1.5); }
     }
 
-    /* Menu button */
+    /* Single menu button */
     .menu-button {
       background: rgba(0, 255, 157, 0.06);
       color: var(--neon);
@@ -134,8 +134,6 @@
       align-items: center;
       gap: 12px;
       font-weight: 500;
-      width: 100%;
-      justify-content: center;
     }
 
     .menu-button:hover {
@@ -143,19 +141,23 @@
       box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
     }
 
-    /* Dropdown */
+    .menu-icon {
+      font-size: 1.3rem;
+    }
+
+    /* Dropdown menu */
     .dropdown-menu {
       display: none;
       position: absolute;
       top: calc(100% + 10px);
       left: 0;
-      right: 0;
       background: var(--dark);
       border: 1px solid rgba(0, 255, 157, 0.18);
       border-radius: var(--radius);
       padding: 16px 0;
       box-shadow: 0 20px 60px rgba(0, 255, 157, 0.15);
       z-index: 20;
+      min-width: 240px;
     }
 
     .dropdown-menu.show {
@@ -166,6 +168,10 @@
       list-style: none;
     }
 
+    .nav-item {
+      margin: 0;
+    }
+
     .nav-link {
       color: var(--muted);
       text-decoration: none;
@@ -173,6 +179,7 @@
       display: block;
       padding: 12px 32px;
       transition: all 0.3s ease;
+      position: relative;
     }
 
     .nav-link:hover,
@@ -424,7 +431,7 @@
 <body>
 
 <!-- Background particles container -->
-<div class="background-particles" id="particles"></div>
+<div id="particles"></div>
 
 <div class="layout">
 
@@ -585,48 +592,46 @@ window.onclick = function(event) {
   }
 }
 
-// ==================
-// Background particles - now much more visible
-// ==================
-function createParticle() {
-  const particle = document.createElement('div');
-  particle.classList.add('particle');
+// ────────────────────────────────────────────────
+// Visible background particles – brighter & more present
+// ────────────────────────────────────────────────
+function spawnParticle() {
+  const p = document.createElement('div');
+  p.classList.add('particle');
 
-  // Random size (bigger than before)
-  const size = Math.random() * 5 + 2; // 2px to 7px
-  particle.style.width = size + 'px';
-  particle.style.height = size + 'px';
+  // Size: noticeably bigger
+  const size = Math.random() * 8 + 3; // 3px – 11px
+  p.style.width = size + 'px';
+  p.style.height = size + 'px';
 
   // Random horizontal position
-  particle.style.left = Math.random() * 100 + 'vw';
+  p.style.left = Math.random() * 100 + 'vw';
 
-  // Start from bottom, move up
-  particle.style.bottom = '-20px';
+  // Start from bottom
+  p.style.bottom = '-50px';
 
-  // Random duration (slower movement = more visible)
-  const duration = Math.random() * 25 + 20; // 20–45 seconds
-  particle.style.animationDuration = duration + 's';
+  // Duration: slow and visible
+  const duration = Math.random() * 30 + 20; // 20–50 seconds
+  p.style.animationDuration = duration + 's';
 
-  // Random delay so they don't all start together
-  particle.style.animationDelay = Math.random() * 10 + 's';
+  // Random delay so they appear staggered
+  p.style.animationDelay = Math.random() * 15 + 's';
 
-  // Random opacity variation
-  particle.style.opacity = Math.random() * 0.4 + 0.3; // 0.3–0.7
+  // Higher base opacity + variation
+  p.style.opacity = Math.random() * 0.4 + 0.5; // 0.5 – 0.9
 
-  document.getElementById('particles').appendChild(particle);
+  document.getElementById('particles').appendChild(p);
 
-  // Clean up after animation
-  setTimeout(() => {
-    particle.remove();
-  }, (duration + 2) * 1000);
+  // Remove after animation + buffer
+  setTimeout(() => p.remove(), (duration + 5) * 1000);
 }
 
-// Create particles more frequently for denser effect
-setInterval(createParticle, 300); // new particle every ~0.3 seconds
+// Spawn more frequently → more particles on screen
+setInterval(spawnParticle, 280); // new particle ~every 0.28 seconds
 
-// Create some particles immediately so it doesn't start empty
-for (let i = 0; i < 12; i++) {
-  setTimeout(createParticle, i * 400);
+// Create initial batch so it's visible immediately
+for (let i = 0; i < 25; i++) {
+  setTimeout(spawnParticle, i * 250);
 }
 </script>
 
