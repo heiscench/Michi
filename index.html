@@ -34,12 +34,54 @@
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
+      position: relative;
     }
 
+    /* === Background animation - visible neon particles === */
+    .background-particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      background: var(--neon);
+      border-radius: 50%;
+      opacity: 0;
+      box-shadow: 
+        0 0 12px var(--neon),
+        0 0 30px rgba(0, 255, 157, 0.4),
+        0 0 60px rgba(0, 255, 157, 0.15);
+      animation: float-particle linear infinite;
+    }
+
+    @keyframes float-particle {
+      0% {
+        transform: translateY(110vh) scale(0.3);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.7;
+      }
+      60% {
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(-20vh) scale(0.8);
+        opacity: 0;
+      }
+    }
+
+    /* === Layout === */
     .layout {
       display: grid;
       grid-template-columns: 280px 1fr;
       min-height: 100vh;
+      position: relative;
+      z-index: 1;
     }
 
     .sidebar {
@@ -78,7 +120,7 @@
       50%      { transform: scale(1.5); }
     }
 
-    /* Single menu button */
+    /* Menu button */
     .menu-button {
       background: rgba(0, 255, 157, 0.06);
       color: var(--neon);
@@ -92,6 +134,8 @@
       align-items: center;
       gap: 12px;
       font-weight: 500;
+      width: 100%;
+      justify-content: center;
     }
 
     .menu-button:hover {
@@ -99,23 +143,19 @@
       box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
     }
 
-    .menu-icon {
-      font-size: 1.3rem;
-    }
-
-    /* Dropdown menu */
+    /* Dropdown */
     .dropdown-menu {
       display: none;
       position: absolute;
       top: calc(100% + 10px);
       left: 0;
+      right: 0;
       background: var(--dark);
       border: 1px solid rgba(0, 255, 157, 0.18);
       border-radius: var(--radius);
       padding: 16px 0;
       box-shadow: 0 20px 60px rgba(0, 255, 157, 0.15);
       z-index: 20;
-      min-width: 240px;
     }
 
     .dropdown-menu.show {
@@ -126,10 +166,6 @@
       list-style: none;
     }
 
-    .nav-item {
-      margin: 0;
-    }
-
     .nav-link {
       color: var(--muted);
       text-decoration: none;
@@ -137,7 +173,6 @@
       display: block;
       padding: 12px 32px;
       transition: all 0.3s ease;
-      position: relative;
     }
 
     .nav-link:hover,
@@ -370,8 +405,6 @@
         flex-direction: column;
         gap: 20px;
       }
-
-      /* Mobile menu adjustments */
       .menu-button {
         width: 100%;
         justify-content: center;
@@ -389,6 +422,9 @@
   </style>
 </head>
 <body>
+
+<!-- Background particles container -->
+<div class="background-particles" id="particles"></div>
 
 <div class="layout">
 
@@ -432,10 +468,6 @@
       <div class="hero-visual">
         <div class="glow-ring">
           <div class="glow-ring-inner"></div>
-             <img src="Michi.jpg"  
-      alt="Hooded Figure"
-      class="glow-ring" 
-    >
         </div>
       </div>
     </section>
@@ -494,21 +526,23 @@
           <p style="color: var(--muted);">Wallet-ready UI system. High-trust layout.</p>
         </div>
       </div>
-</section>
 
-<section>
+      <div class="showcase">
+        <h2 class="section-title" style="margin: 140px 0 60px;">FEATURED CONSTRUCT</h2>
+        <div class="showcase-frame">
+          <!-- You can replace this with your own image, mockup, gif, or 3D render -->
+        </div>
+      </div>
+    </section>
 
+    <section>
       <div class="contact-terminal">
         <h2>sample</h2>
-
-        
         <div class="social-buttons">
           <a href="https://mple.netlify.app/" class="social-btn" target="_blank">Sample</a>
         </div>
       </div>
     </section>
-      
-    
 
     <section id="contact" class="section">
       <div class="contact-terminal">
@@ -533,22 +567,67 @@
 </div>
 
 <script>
-  function toggleMenu() {
-    document.getElementById('dropdown').classList.toggle('show');
-  }
+// Toggle dropdown menu
+function toggleMenu() {
+  document.getElementById('dropdown').classList.toggle('show');
+}
 
-  // Close menu if clicking outside
-  window.onclick = function(event) {
-    if (!event.target.matches('.menu-button') && !event.target.matches('.menu-icon')) {
-      var dropdowns = document.getElementsByClassName("dropdown-menu");
-      for (var i = 0; i < dropdowns.length; i++) {
-        var openDropdown = dropdowns[i];
-        if (openDropdown.classList.contains('show')) {
-          openDropdown.classList.remove('show');
-        }
+// Close menu when clicking outside
+window.onclick = function(event) {
+  if (!event.target.matches('.menu-button') && !event.target.matches('.menu-icon')) {
+    var dropdowns = document.getElementsByClassName("dropdown-menu");
+    for (var i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
       }
     }
   }
+}
+
+// ==================
+// Background particles - now much more visible
+// ==================
+function createParticle() {
+  const particle = document.createElement('div');
+  particle.classList.add('particle');
+
+  // Random size (bigger than before)
+  const size = Math.random() * 5 + 2; // 2px to 7px
+  particle.style.width = size + 'px';
+  particle.style.height = size + 'px';
+
+  // Random horizontal position
+  particle.style.left = Math.random() * 100 + 'vw';
+
+  // Start from bottom, move up
+  particle.style.bottom = '-20px';
+
+  // Random duration (slower movement = more visible)
+  const duration = Math.random() * 25 + 20; // 20–45 seconds
+  particle.style.animationDuration = duration + 's';
+
+  // Random delay so they don't all start together
+  particle.style.animationDelay = Math.random() * 10 + 's';
+
+  // Random opacity variation
+  particle.style.opacity = Math.random() * 0.4 + 0.3; // 0.3–0.7
+
+  document.getElementById('particles').appendChild(particle);
+
+  // Clean up after animation
+  setTimeout(() => {
+    particle.remove();
+  }, (duration + 2) * 1000);
+}
+
+// Create particles more frequently for denser effect
+setInterval(createParticle, 300); // new particle every ~0.3 seconds
+
+// Create some particles immediately so it doesn't start empty
+for (let i = 0; i < 12; i++) {
+  setTimeout(createParticle, i * 400);
+}
 </script>
 
 </body>
